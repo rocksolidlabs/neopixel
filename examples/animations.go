@@ -9,7 +9,7 @@ import (
 	"github.com/rocksolidlabs/neopixel"
 )
 
-var gpioPin = flag.Int("gpio-pin", 17, "GPIO pin")
+var gpioPin = flag.Int("gpio-pin", 12, "GPIO pin")
 var width = flag.Int("width", 1, "LED matrix width")
 var height = flag.Int("height", 93, "LED matrix height")
 var brightness = flag.Int("brightness", 255, "Brightness (0-255)")
@@ -29,13 +29,13 @@ func main() {
 	}
 
 	size := *width * *height
-	conf := neopixel.DefaultOptions
+	conf := neopixel.DefaultConfig
 	conf.Brightness = *brightness
-	conf.LedCount = size
+	conf.LEDCount = size
 	conf.Brightness = *gpioPin
 	conf.StripeType = neopixel.StripGRB
 
-	np, err := neopixel.MakeNeoPixel(&conf)
+	np, err := neopixel.NewNeoPixel(&conf)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -45,11 +45,11 @@ func main() {
 		fmt.Println(err)
 	}
 
-	color := Color(*red, *green, *blue)
+	//color := neopixel.Color(*red, *green, *blue)
 
-	red := Color(255, 0, 0)
-	green := Color(0, 255, 0)
-	blue := Color(0, 0, 255)
+	red := neopixel.Color(255, 0, 0)
+	green := neopixel.Color(0, 255, 0)
+	blue := neopixel.Color(0, 0, 255)
 
 	fmt.Println("Theater Chase Animation")
 	np.TheaterChase(blue, *duration, 100)
@@ -58,13 +58,13 @@ func main() {
 	np.Rainbow(*duration, 100)
 
 	fmt.Println("Rainbow Cycle Animation")
-	np.RainbowCycle(np, *duration, 100)
+	np.RainbowCycle(*duration, 100)
 
 	fmt.Println("Color Wipe Animation")
-	np.ColorWipe(np, blue, *duration)
-	np.ColorWipe(np, green, *duration)
-	np.ColorWipe(np, blue, *duration)
-	np.ColorWipe(np, red, *duration)
+	np.ColorWipe(blue, *duration)
+	np.ColorWipe(green, *duration)
+	np.ColorWipe(blue, *duration)
+	np.ColorWipe(red, *duration)
 
 	fmt.Println("Theater Chase Rainbow Animation")
 	np.TheaterChaseRainbow(*duration, 100)

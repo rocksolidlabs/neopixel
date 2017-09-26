@@ -33,16 +33,17 @@ const (
 type Config struct {
 	Frequency  int
 	DmaNum     int
-	GpioPin    int
-	LedCount   int
+	GPIOPin    int
+	LEDCount   int
 	Brightness int
 	StripeType int
 	Invert     bool
+	Ring       bool
 }
 
 // neopixel represent the ws2811 device
 type NeoPixel struct {
-	Dev *C.ws2811_t
+	Dev    *C.ws2811_t
 	Config *Config
 }
 
@@ -50,23 +51,23 @@ type NeoPixel struct {
 var DefaultConfig = Config{
 	Frequency:  800000,
 	DmaNum:     5,
-	GPIOPin:    17,
+	GPIOPin:    12,
 	LEDCount:   93,
 	Brightness: 255,
 	StripeType: StripGRB,
 	Invert:     false,
-	Ring:		true,
+	Ring:       true,
 }
 
 // Rings in Mokungit 93 LED WS2812 5050
 // http://mokungit.com/product-item/ws2812b-pixel-rgb-ring
 var rings = [][]int{
 	{92},
-	{91,90,89,88,87,86,85,84},
-	{83,82,81,80,79,78,77,76,75,74,73,72},
-	{71,70,69,68,67,66,65,64,63,62,61,60,59,58,57,56},
-	{55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32},
-	{31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0},
+	{91, 90, 89, 88, 87, 86, 85, 84},
+	{83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72},
+	{71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58, 57, 56},
+	{55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32},
+	{31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0},
 }
 
 var gamma8 = []uint32{
@@ -104,7 +105,7 @@ func NewNeoPixel(conf *Config) (np *NeoPixel, err error) {
 		return
 	}
 	C.memset(unsafe.Pointer(np.Dev), 0, C.sizeof_ws2811_t)
-	
+
 	np.Config = conf
 
 	np.Dev.freq = C.uint32_t(conf.Frequency)
@@ -113,7 +114,7 @@ func NewNeoPixel(conf *Config) (np *NeoPixel, err error) {
 	np.Dev.channel[0].count = C.int(conf.LEDCount)
 	np.Dev.channel[0].brightness = C.uint8_t(conf.Brightness)
 	np.Dev.channel[0].strip_type = C.int(conf.StripeType)
-	if opt.Invert {
+	if conf.Invert {
 		np.Dev.channel[0].invert = C.int(1)
 	} else {
 		np.Dev.channel[0].invert = C.int(0)
@@ -156,8 +157,8 @@ func (np *NeoPixel) Fini() {
 	C.ws2811_fini(np.Dev)
 }
 
-// SetLed defines the color of a given pixel.
-func (np *NeoPixel) SetLed(index int, value uint32) {
+// SetLED defines the color of a given pixel.
+func (np *NeoPixel) SetLED(index int, value uint32) {
 	C.ws2811_set_led(np.Dev, 0, C.int(index), C.uint32_t(gammaCorrected(value)))
 }
 
